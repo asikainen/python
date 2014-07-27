@@ -3,7 +3,7 @@
 # Date: 2014-07-24
 # Author: Joonas Asikainen <tjasikai@mac.com>
 # Description: Implementation of the clustering algorithm 
-# "Union-find with path compression" (as in Ref. [1]).
+# "Union-find with weighing and path compression" (as in Ref. [1]).
 #
 # References:
 # 

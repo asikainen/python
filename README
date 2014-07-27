@@ -11,4 +11,4 @@ out the pairs which are close to each other (based on the hash value).
 2. stack.py implements a simple and efficient stack algorithm for
 integers.
 
-3. union_find.py implements union-find with weighting and path compression.
+3. union_find.py implements union-find with weighing and path compression.
