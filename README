@@ -1,3 +1,14 @@
 # Date: 2014-07-27
 # Author: Joonas Asikainen <tjasikai@mac.com>
 # Description: Miscellaneous Python source code.
+
+
+1. lsh.py implements Locality-sensitive hashing. The
+main method also enables testing the algorithm by generating random
+coordinates and computing the locality sensitive hashes and printing
+out the pairs which are close to each other (based on the hash value).
+
+2. stack.py implements a simple and efficient stack algorithm for
+integers.
+
+3. union_find.py implements union-find with weighting and path compression.
