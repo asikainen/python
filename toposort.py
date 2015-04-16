@@ -87,9 +87,9 @@ if __name__ == '__main__':
             # exclude self-references
             if (not edge[0] == edge[1]) :
                 edges.append(edge)
-                efrom = nodes.index(edge[1])
-                eto = nodes.index(edge[0])
-                matrix[efrom][eto] = 1
+                edgeFrom = nodes.index(edge[1])
+                edgeTo = nodes.index(edge[0])
+                matrix[edgeFrom][edgeTo] = 1
     f.close()
 
     if (dbg) :
