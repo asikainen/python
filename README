@@ -12,3 +12,5 @@ out the pairs which are close to each other (based on the hash value).
 integers.
 
 3. union_find.py implements union-find with weighing and path compression.
+
+4. toposort.py implements topological sorting (Kahn 1962 algorithm).
