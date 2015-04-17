@@ -87,14 +87,16 @@ if __name__ == '__main__':
             # exclude self-references
             if (not edge[0] == edge[1]) :
                 edges.append(edge)
-                nodeFrom = nodes.index(edge[1])
-                nodeTo = nodes.index(edge[0])
-                matrix[nodeFrom][nodeTo] = 1
     f.close()
-
+    edges = sorted(edges)
     if (dbg) :
-        print '-- edges'
-        print sorted(edges)
+        print '-- edges',edges
+
+    # prepare the edge matrix
+    for edge in edges :
+        efrom = nodes.index(edge[1])
+        eto = nodes.index(edge[0])
+        matrix[efrom][eto] = 1
 
     # timing
     print '-- number of nodes =', len(nodes)
