@@ -3,9 +3,29 @@
 # Date:        2014-09-04
 # Author:      Joonas Asikainen 
 # Description: Kahn algorithm - topological sorting
+# Usage:       toposort.py node_file_name edge_file_name;
+#
+# Sample:      Sample input data (tab-separated files edges.txt, nodes.txt)
+#              below.
 
-#        sumOverRow = matrix[i].sum()
-#        sumOverCol = matrix[:,i].sum()
+# edges.txt:
+"""
+# NodeTo	NodeFrom
+City	Customer
+City	SalesOrder
+Customer	SalesOrder
+SalesOrder	SalesOrderDetail
+Product	SalesOrderDetail
+"""
+# nodes.txt:
+"""
+# Node
+SalesOrder
+Customer
+City
+SalesOrderDetail
+Product
+"""
 
 #####
 import sys
@@ -13,72 +33,50 @@ import math
 import numpy
 import time
 
-
-# Depth-first algorithm 
-def getTopologicalSortingDepthFirst(matrix, dbg) :
-    
-    # unmarked = 0, temporarily marked = 1, marked = 2
-    srtd = []
-    size = len(matrix[0])
-    nodes = numpy.zeros(size, dtype=int)
-    #print numpy.where(nodes == 0)[0]
-
-    # loop while unmarked nodes left 
-    unmarked = size
-    while (unmarked > 0) :
-        node = -1 
-        for n in range(size) :
-            if (nodes[n] == 0) :
-                node = n
-                break
-        visit(matrix, nodes, node, srtd)
-        unmarked = sum([1 for x in nodes if x == 0])
-
-    # remove edges and return the sorted list
+# Kahn algorithm. 
+def getTopologicalSortingLevel(matrix) :
+    nxt = 0
+    slist = []
     for i in range(size) :
-        for j in range(size) :
-            matrix[i][j] = 0 
-    return srtd
+        refs = matrix[i].sum()
+        if (refs == 0) :
+            slist.append([i,nxt])
+    llist = []
 
-
-# visit a node
-def visit(matrix, nodes, nn, srtd) :
-    size = len(nodes)
-
-    if (nodes[nn] == 1) :
-        print '-- not a ADG!'
-        sys.exit()
-
-    if (nodes[nn] == 0) :
-        nodes[nn] = 1 # temporary mark
+    # topological sort algorithm
+    nxt = nxt + 1
+    while (slist) :
+        [nn, cur] = slist.pop()
+        if (nxt == cur) :
+            nxt = nxt + 1
+#        print nn, cur
+        llist.append([nn,cur])
         for mm in range(size) :
-            # visit referencing node
+            # remove edge
             if (matrix[mm][nn] == 1) :
-                visit(matrix, nodes, mm, srtd)
-        nodes[nn] = 2
-        srtd.insert(0, nn)
-    return
+                matrix[mm][nn] = 0
+                refs = matrix[mm].sum()
+                if (refs == 0) :
+                    slist.insert(0, [mm, nxt])
+    # done
+    return llist
 
-# Kahn algorithm 
-def getTopologicalSortingKahn(matrix, dbg) :
+# Kahn algorithm. 
+def getTopologicalSorting(matrix) :
     slist = []
     for i in range(size) :
         refs = matrix[i].sum()
         if (refs == 0) :
             slist.append(i)
-    if (dbg) :
-        print '-- non-referenced nodes:', slist
     llist = []
 
     # topological sort algorithm
     while (slist) :
         nn = slist.pop()
         llist.append(nn)
-#        print '-- adding node ', nn
         for mm in range(size) :
             # remove edge
             if (matrix[mm][nn] == 1) :
-#                print '-- removing edge (mm, nn) = (', mm, ',', nn,')'
                 matrix[mm][nn] = 0
                 refs = matrix[mm].sum()
                 if (refs == 0) :
@@ -96,9 +94,6 @@ if __name__ == '__main__':
         print '-- usage: toposort.py node_file_name edge_file_name'
         sys.exit()
 
-    # debug printing flag
-    dbg = False
-
     # info
     print '-- toposort.py:', args
 
@@ -115,8 +110,6 @@ if __name__ == '__main__':
             nodes.append(line)
     f.close()
     nodes = sorted(nodes)
-    if (dbg) :
-        print '-- nodes:', nodes
 
     # system size and the edge matrix
     size = len(nodes)
@@ -135,8 +128,6 @@ if __name__ == '__main__':
                 edges.append(edge)
     f.close()
     edges = sorted(edges)
-    if (dbg) :
-        print '-- edges',edges
 
     # prepare the edge matrix
     for edge in edges :
@@ -152,7 +143,7 @@ if __name__ == '__main__':
 
     # sorting topologically
     start = int(round(time.time() * 1000))
-    srtd = getTopologicalSortingKahn(matrix, dbg)
+    srtd = getTopologicalSortingLevel(matrix)
     end = int(round(time.time() * 1000))
     print '-- computation time =', (end-start), 'ms.'
     
@@ -163,8 +154,8 @@ if __name__ == '__main__':
         print '-- number of edges remaining = ', cnt
     else :
         print '-- list of nodes in topological order:'
-        for node in srtd :
-            print nodes[node]
+        for [node, lvl] in srtd :
+            print lvl, nodes[node]
 
 
 
