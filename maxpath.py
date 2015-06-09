@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # iterate from start node
     node = args[2]
     if (not node in nodes) :
-        print '-- node ', nodes, ' not in the list, exiting...'
+        print '-- node ', node, ' not in the list, exiting...'
         sys.exit()
 
     # compute
