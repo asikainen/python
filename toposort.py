@@ -171,7 +171,7 @@ if __name__ == '__main__':
             # edge
             edge = line.strip().split('\t')
             # exclude self-references
-            if (not edge[0] == edge[1]) :
+            if (len(edge) > 1 and not edge[0] == edge[1]) :
                 edges.append(edge)
     f.close()
     edges = sorted(edges)
