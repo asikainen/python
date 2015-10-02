@@ -3,7 +3,7 @@
 # Date:        2019-09-22
 # Author:      Joonas Asikainen 
 # Description: Schema/Table/Column/Type diff tool
-# Usage:       python dwhdiff.py fileA.csv fileB.csv
+# Usage:       python dwhdiff.py fileA.csv fileB.csv [separator]
 
 """
 -- SQL for Sybase IQ to extract input to be stored in files A and B.
@@ -103,7 +103,7 @@ def getCurrentRecord(row, rows, records) :
 if __name__ == '__main__':
 
     # check args
-    target = ['table_owner','table_name','column_name','colummn_id','data_type', 'precision', 'scale', 'length']
+    target = ['table_owner','table_name','column_name','column_id','data_type', 'precision', 'scale', 'length']
     args = sys.argv[1:] 
     nargs = len(args)
     if (nargs < 2) :
@@ -186,17 +186,17 @@ if __name__ == '__main__':
                 missingB += 1
                 rowA += 1
             else :         # metadata different
-                print 'Differing: ', pathToB, ' - ', (recA[0]+'.'+recA[1]+'.'+recA[2]+' field '+ recA[col])
-                differing += 1
+                print 'Differing: ', pathToB, ' - ', (recA[0]+'.'+recA[1]+'.'+recA[2]+' field '+colsA[col]+' value '+recA[col]+' vs '+recB[col])
+                differing+= 1
                 rowB += 1
                 rowA += 1
-        else : # (res == +1)
+        else : # (res ==+1)
             if (col < 3) : # owner/table/column missing
                 print 'Missing: ', pathToA, ' - ', (recB[0]+'.'+recB[1]+'.'+recB[2])
                 missingA += 1
                 rowB += 1
             else :         # metadata different
-                print 'Differing: ', pathToA, ' - ', (recB[0]+'.'+recB[1]+'.'+recB[2]+' field '+ recB[col])
+                print 'Differing: ', pathToA, ' - ', (recB[0]+'.'+recB[1]+'.'+recB[2]+' field '+colsA[col]+' value '+recA[col]+' vs '+recB[col])
                 differing += 1
                 rowA += 1
                 rowB += 1
@@ -208,4 +208,4 @@ if __name__ == '__main__':
     # print info
     end = int(round(time.time() * 1000))
     print '-- finished in ', (end-start), ' ms.'
-    print '-- rowsA = ', rowsA, '; rowsB = ', rowsB, '; rows = ', row, '; missing in A = ', missingA, '; missing in B = ', missingB, '; differing = ', differing
+    print '-- rowsA = ', rowsA, '; rowsB = ', rowsB, '; rowsTot= ', row, '; missing in A = ', missingA, '; missing in B = ', missingB, '; differing = ', differing
