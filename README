@@ -14,3 +14,9 @@ integers.
 3. union_find.py implements union-find with weighing and path compression.
 
 4. toposort.py implements topological sorting (Kahn 1962 algorithm).
+
+5. maxpath.py computes the path length in a graph based on edges connecting the nodes by traversal.
+
+6. file2ddl.py implments CSV file to DDL/loading utility.
+
+7. dwhdiff.py implements DB table/column metadata comparison utility.
