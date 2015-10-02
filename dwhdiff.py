@@ -145,6 +145,18 @@ if __name__ == '__main__':
         print '-- Error: column ', col, ' mismatch (', colsA[col], ' <> ', colsB[col], ')'
         sys.exit()
 
+    # check record lengths
+    row = 0
+    for rec in recsA :
+        if len(rec) != len(colsA) :
+            print '-- Error: row ', row, ' in file ', pathToA, ' is incomplete.'
+            sys.exit()
+    row = 0
+    for rec in recsB :
+        if len(rec) != len(colsB) :
+            print '-- Error: row ', row, ' in file ', pathToB, ' is incomplete.'
+            sys.exit()
+
     # sort records by 1) table_owner, 2) table_name, 3) column_name
     recsA = sorted(recsA, key = lambda x : (x[0], x[1], x[2])) 
     recsB = sorted(recsB, key = lambda x : (x[0], x[1], x[2])) 
