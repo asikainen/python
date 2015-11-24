@@ -111,6 +111,7 @@ if __name__ == '__main__':
         print '-- \tpath/to/fileA: data from DWH A - required.'
         print '-- \tpath/to/fileB: data from DWH B - required.'
         print '-- \tseparator: field delimiter in CSV file (default is ";") - optional.'
+        print '-- \tdetailed output will be written to ./dwh_diff_report.csv.'
         sys.exit()
     print '-- dwhdiff.py version 1.0.'
 
@@ -161,51 +162,60 @@ if __name__ == '__main__':
     recsA = sorted(recsA, key = lambda x : (x[0], x[1], x[2])) 
     recsB = sorted(recsB, key = lambda x : (x[0], x[1], x[2])) 
 
-    # record level comparison (merge-sort-compare)
-    row = 0
-    rowA = 0
-    rowsA = len(recsA)
-    rowB = 0
-    rowsB = len(recsB)
-    missingA = 0
-    missingB = 0
-    differing = 0
-    while not (rowA >= rowsA and rowB >= rowsB) :
-        # current record from either data set
-        recA = getCurrentRecord(rowA, rowsA, recsA)
-        recB = getCurrentRecord(rowB, rowsB, recsB)
-        # comparison
-        [res, col] = compare(recA, recB)
-        if (res == 0) :
-            # records equal
-            rowA += 1
-            rowB += 1
-        elif (res == -1) :
-            if (col < 3) : # owner/table/column missing
-                print 'Missing: ', pathToB, ' - ', (recA[0]+'.'+recA[1]+'.'+recA[2])
-                missingB += 1
-                rowA += 1
-            else :         # metadata different
-                print 'Differing: ', pathToB, ' - ', (recA[0]+'.'+recA[1]+'.'+recA[2]+' field '+colsA[col]+' value '+recA[col]+' vs '+recB[col])
-                differing+= 1
-                rowB += 1
-                rowA += 1
-        else : # (res ==+1)
-            if (col < 3) : # owner/table/column missing
-                print 'Missing: ', pathToA, ' - ', (recB[0]+'.'+recB[1]+'.'+recB[2])
-                missingA += 1
-                rowB += 1
-            else :         # metadata different
-                print 'Differing: ', pathToA, ' - ', (recB[0]+'.'+recB[1]+'.'+recB[2]+' field '+colsA[col]+' value '+recA[col]+' vs '+recB[col])
-                differing += 1
+    # fixed output file
+    pathToOutput = './dwh_diff_report.csv'
+    with open(pathToOutput, 'wb') as csvfile:
+        csvwriter = csv.writer(csvfile, delimiter=separator, quotechar='"')
+        csvwriter.writerow(['change', 'schemaA', 'tableA', 'columnA', 'attrA', 'valueA', 'schemaB', 'tableB', 'columnB', 'attrB', 'valueB'])
+        # record level comparison (merge-sort-compare)
+        row = 0
+        rowA = 0
+        rowsA = len(recsA)
+        rowB = 0
+        rowsB = len(recsB)
+        missingA = 0
+        missingB = 0
+        differing = 0
+        while not (rowA >= rowsA and rowB >= rowsB) :
+            # current record from either data set
+            recA = getCurrentRecord(rowA, rowsA, recsA)
+            recB = getCurrentRecord(rowB, rowsB, recsB)
+            # comparison
+            [res, col] = compare(recA, recB)
+            if (res == 0) :
+                # records equal
                 rowA += 1
                 rowB += 1
-        # next row
-        row  += 1
-        if (row >= (rowsA + rowsB)) : # safety - cannot be more that "union" # of records
-            break;
+            elif (res == -1) :
+                if (col < 3) : # owner/table/column missing
+                    #print 'Missing: ', pathToB, ' - ', (recA[0]+'.'+recA[1]+'.'+recA[2])
+                    csvwriter.writerow(['added', recA[0], recA[1] , recA[2], colsA[col], recA[col], '', '', '', '', '', ''])
+                    missingB += 1
+                    rowA += 1
+                else :         # metadata different
+                    #print 'Differing: ', pathToB, ' - ', (recA[0]+'.'+recA[1]+'.'+recA[2]+' field '+colsA[col]+' value '+recA[col]+' vs '+recB[col])
+                    csvwriter.writerow(['changed', recA[0], recA[1] , recA[2], colsA[col], recA[col], recB[0], recB[1] , recB[2], colsB[col], recB[col]])
+                    differing+= 1
+                    rowB += 1
+                    rowA += 1
+            else : # (res ==+1)
+                if (col < 3) : # owner/table/column missing
+                    #print 'Missing: ', pathToA, ' - ', (recB[0]+'.'+recB[1]+'.'+recB[2])
+                    csvwriter.writerow(['deleted', '', '', '', '', '', '', recB[0], recB[1] , recB[2], colsB[col], recB[col]])
+                    missingA += 1
+                    rowB += 1
+                else :         # metadata different
+                    #print 'Differing: ', pathToA, ' - ', (recB[0]+'.'+recB[1]+'.'+recB[2]+' field '+colsA[col]+' value '+recA[col]+' vs '+recB[col])
+                    csvwriter.writerow(['changed', recA[0], recA[1] , recA[2], colsA[col], recA[col], recB[0], recB[1] , recB[2], colsB[col], recB[col]])
+                    differing += 1
+                    rowA += 1
+                    rowB += 1
+            # next row
+            row  += 1
+            if (row >= (rowsA + rowsB)) : # safety - cannot be more that "union" # of records
+                break;
 
-    # print info
-    end = int(round(time.time() * 1000))
-    print '-- finished in ', (end-start), ' ms.'
-    print '-- rowsA = ', rowsA, '; rowsB = ', rowsB, '; rowsTot= ', row, '; missing in A = ', missingA, '; missing in B = ', missingB, '; differing = ', differing
+        # print info
+        end = int(round(time.time() * 1000))
+        print '-- finished in ', (end-start), ' ms.'
+        print '-- rowsA = ', rowsA, '; rowsB = ', rowsB, '; rowsTot= ', row, '; deleted from A = ', missingA, '; added to A = ', missingB, '; differing = ', differing
