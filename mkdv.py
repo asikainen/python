@@ -3,9 +3,11 @@
 # Date:         2019-09-22
 # Author:       Joonas Asikainen
 # Version:      v.1.0
-# Description:  Read an Excel configuration file containing the concept (hubs), context (satellites),
-#               relationsip (links) information; generate DDL for the corresponding Data Vault
+# Description:  Read an Excel configuration file (e.g., config.xls) containing the concept (hubs), 
+#               context (satellites), relationsip (links) information; generate DDL for the corresponding
+#               Data Vault
 # Usage:        python mkdv.py path/to/config
+# Output:       SQL file named as 
 #
 
 # imports
@@ -280,8 +282,6 @@ def readColumnsFromExcel(fullname, sheetname, columns) :
                 if col < 0 :
                     print '-- could not find the specified columns; expected = ', columns
                     return data
-            else :
-                print '-- column indexes = ', cols
         else :
             record = []
             for col in cols :
@@ -344,7 +344,7 @@ if __name__ == '__main__':
     # print '-- sats = ', sats
     
     # generate table objects
-    print '-- start generating table objects...'
+    print '-- generating table objects...'
     start = int(round(time.time() * 1000))
 
     # generate hubs
@@ -378,15 +378,32 @@ if __name__ == '__main__':
             tbl = chk[key]
         tbl.add(sat[2],sat[3],sat[4],sat[5],sat[6])
 
-    # print drop DDL's
+    # print info
+    end = int(round(time.time() * 1000))
+    print '-- finished  in ', (end-start), ' ms.'
+
+    # setup file for writing
+    filename, extension = os.path.splitext(excel)
+    sqlfile = (filename + '.sql')
+    print '-- writing output file ', sqlfile
+    start = int(round(time.time() * 1000))
+    outf = open(sqlfile, 'wb')    
+    
+    # sort tables by name (and type, too)
     keys = chk.keys()
     keys = sorted(keys)
+
+    # print drop DDL's    
+    outf.write('/* drop tables */\n')    
     for key in keys :
-        print chk[key].toDropSQL()
+        outf.write(chk[key].toDropSQL())
+        outf.write('\n')
 
     # print create DDL's
+    outf.write('/* create tables */\n')    
     for key in keys:
-        print chk[key].toCreateSQL()
+        outf.write(chk[key].toCreateSQL())
+        outf.write('\n')
 
     # timestamp
     strDateTime = time.strftime('%Y%m%d', time.localtime())
