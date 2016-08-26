@@ -26,20 +26,22 @@ Begin the story.
 
 ### Configuration
 class Configuration :
-
-    def __init__(self) :
-        # code version
-        self.version = 'v.1.0'
-        # supported data types
-        self.datatypes = ['char', 'varchar', 'text',
-            'date', 'time', 'datetime', 'timestamp',
-            'bigint', 'int', 'mediumint', 'smallint', 'tinyint', 'boolean', 'decimal', 'float', 'double']
-        # structure of the hub (concept) input data
-        self.hubStructure = ['Concept']
-        # structure of the link (relation) input data
-        self.lnkStructure = ['Relation', 'Concept']
-        # structure of the satellite (context) input data
-        self.satStructure = ['Concept', 'Context', 'Attribute', 'Datatype', 'Length', 'Precision', 'Nullable']
+    # code version
+    version = 'v.1.0'
+    # supported data types
+    datatypes = ['char', 'varchar', 'text',
+        'date', 'time', 'datetime', 'timestamp',
+        'bigint', 'int', 'mediumint', 'smallint', 'tinyint', 'boolean', 'decimal', 'float', 'double']
+    # surrogate (hub) key length
+    surrogateKeyLength = 64
+    # business key length
+    businessKeyLength = 128
+    # structure of the hub (concept) input data
+    hubStructure = ['Concept']
+    # structure of the link (relation) input data
+    lnkStructure = ['Relation', 'Concept']
+    # structure of the satellite (context) input data
+    satStructure = ['Concept', 'Context', 'Attribute', 'Datatype', 'Length', 'Precision', 'Nullable']
 
 ### Column
 class Column:
@@ -174,8 +176,8 @@ class HubTable  (Table) :
                 name = name.replace('Hub_', '')
             Table.__init__(self, name, 'hub')
             hubKey = (name + '_SK')
-            self.add(hubKey, 'varchar', 64, None, False, True, False)
-            self.add((name + '_BK'), 'varchar', 128, None, False, False, True)
+            self.add(hubKey, 'varchar', Configuration.surrogateKeyLength, None, False, True, False)
+            self.add((name + '_BK'), 'varchar', Configuration.businessKeyLength, None, False, False, True)
             self.add('LoadDateTime', 'datetime', None, None, False, False, False)
             self.add('RecordSource', 'varchar', 32, None, False, False, False)
 
@@ -197,7 +199,7 @@ class SatelliteTable  (Table) :
                 hubname = getTableName(name, 'hub')
             Table.__init__(self, name, 'satellite')
             hubKey = (hubname + '_SK')
-            self.add(hubKey, 'varchar', 64, None, False, True, False)
+            self.add(hubKey, 'varchar', Configuration.surrogateKeyLength, None, False, True, False)
             self.add('LoadDateTime', 'datetime', None, None, False, True, False)
             self.add('RecordSource', 'varchar', 32, None, False, False, False)
             self.add('IsDeleted', 'boolean')
@@ -326,15 +328,14 @@ if __name__ == '__main__':
         sheets[2] =args[3]
 
     # print info
-    cfg = Configuration()
-    printInfo(excel, sheets, cfg.version)
+    printInfo(excel, sheets, Configuration.version)
 
     # read data
     start = int(round(time.time() * 1000))
     print '-- start reading data...'
-    hubs = readColumnsFromExcel(excel, sheets[0], cfg.hubStructure)
-    sats = readColumnsFromExcel(excel, sheets[1], cfg.satStructure)
-    lnks = readColumnsFromExcel(excel, sheets[2], cfg.lnkStructure)
+    hubs = readColumnsFromExcel(excel, sheets[0], Configuration.hubStructure)
+    sats = readColumnsFromExcel(excel, sheets[1], Configuration.satStructure)
+    lnks = readColumnsFromExcel(excel, sheets[2], Configuration.lnkStructure)
     end = int(round(time.time() * 1000))
     print '-- finished  in ', (end-start), ' ms.'
 
@@ -365,7 +366,7 @@ if __name__ == '__main__':
         else :
             tbl = chk[key]
         hubKey = lnk[1]+'_SK'
-        tbl.add(hubKey,'varchar',64,None,False,True,True)
+        tbl.add(hubKey,'varchar',Configuration.surrogateKeyLength,None,False,True,True)
 
     # generate satellites
     for sat in sats :
