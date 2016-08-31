@@ -7,7 +7,7 @@
 #               context (satellites), relationsip (links) information; generate DDL for the corresponding
 #               Data Vault
 # Usage:        python mkdv.py path/to/config
-# Output:       SQL file named as the configuration file with an '.sql' extension (e.g., config.sql)
+# Output:       SQL file named as the configuration file with a '.sql' extension (e.g., config.sql)
 #
 
 # imports
