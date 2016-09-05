@@ -10,7 +10,7 @@
 #               - avg_length - average length of the records in the column
 #               - max_length - maximum length of the records in the column
 #               - nulls - number of NULL or empty records in the column
-# Usage:        python colstats.py pathToCSV delimiter
+# Usage:        python colstats.py pathToCSV delimiter [samples]
 
 """
 Start of story.
