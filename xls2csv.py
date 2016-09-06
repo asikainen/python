@@ -34,7 +34,7 @@ def xls2csv(path, fullname, dm = ';') :
         # extract data from current sheet and write to CSV
         csvfilename = (path + '/' + filename + '_' + sheetname + '.csv')
         with open(csvfilename, "wb") as outputfile:
-            csvwriter = unicodecsv.writer(outputfile, delimiter=dm, lineterminator='\n' ,encoding='utf-8')
+            csvwriter = unicodecsv.writer(outputfile, delimiter=dm, quotechar='"', lineterminator= '\n' ,encoding='utf-8')
             print '-- writing file ', csvfilename
             sh =workbook.sheet_by_name(sheetname)
             for row in range(sh.nrows) :

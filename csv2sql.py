@@ -33,6 +33,7 @@ import re
 import time
 import csv
 import math
+import unicodedata
 
 ### Parser base class ###
 class Parser :
@@ -300,6 +301,7 @@ def analyzeFile(path, fullName, sample = 0) :
         return None
 
     # initialize parsers and analyse file
+    print '-- detected delimiter = "', dm, '".'
     parsers = []
     with open(path + '/' + fullName, 'rb') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=dm, quotechar='"')
@@ -311,6 +313,7 @@ def analyzeFile(path, fullName, sample = 0) :
             if (row == 0) :
                 col = 0
                 for item in record :
+                    item = stripAccents(unicode(item, 'utf-8'))
                     columnNames.append(item)
                     parsers.append(DataTypeParser(col, item))
                     col += 1
@@ -345,6 +348,11 @@ def analyzeFile(path, fullName, sample = 0) :
     
     # done
     return FileResult(fullName, columnNames, dataTypes, formats, lengths, dm)
+
+### strip accents
+def stripAccents(s):
+   return ''.join(c for c in unicodedata.normalize('NFD', s)
+                  if unicodedata.category(c) != 'Mn')
 
 ### main ###
 if __name__ == '__main__':
